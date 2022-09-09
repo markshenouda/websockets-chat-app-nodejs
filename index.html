@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebSockets Chat</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+          "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+          "Helvetica Neue", sans-serif;
+      }
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        border: 0.5rem solid rebeccapurple;
+      }
+      .messages {
+        flex: 1;
+        overflow: auto;
+        width: 100%;
+      }
+      .input {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        border-top: 0.5rem solid rebeccapurple;
+      }
+      .input input {
+        font-size: 20px;
+        flex: 1;
+        padding: 1rem;
+        border: none;
+        outline: none;
+      }
+      .input button {
+        background-color: green;
+        color: white;
+        border: none;
+        cursor: pointer;
+        padding: 10px;
+        height: 100%;
+      }
+      .other-message {
+        display: flex;
+        justify-content: flex-start;
+        width: 100%;
+      }
+      .other-message .text {
+        background-color: #ddd;
+        padding: 10px;
+        margin: 10px;
+        border-radius: 10px;
+      }
+      .my-message {
+        display: flex;
+        justify-content: flex-end;
+        width: 100%;
+      }
+      .my-message .text {
+        background-color: rebeccapurple;
+        color: white;
+        padding: 10px;
+        margin: 10px;
+        border-radius: 10px;
+        align-self: flex-end;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="messages"></div>
+      <div class="input">
+        <input
+          type="text"
+          class="message"
+          placeholder="Type a message..."
+          onenter
+        />
+        <button class="send" onclick="send()">Send</button>
+      </div>
+    </div>
+
+    <script>
+      const socket = new WebSocket("ws://localhost:3000");
+      const messages = document.querySelector(".messages");
+      const input = document.querySelector(".message");
+      socket.addEventListener("message", (event) => {
+        const div = document.createElement("div");
+        div.classList.add("other-message");
+        div.innerHTML = `<span class="text">${event.data}</span>`;
+        messages.appendChild(div);
+      });
+
+      function send() {
+        socket.send(input.value);
+        const div = document.createElement("div");
+        div.classList.add("my-message");
+        div.innerHTML = `<span class="text">${input.value}</span>`;
+        messages.appendChild(div);
+        input.value = "";
+      }
+
+      input.addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          send();
+        }
+      });
+    </script>
+  </body>
+</html>
